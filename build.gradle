@@ -29,8 +29,20 @@ dependencies {
 	implementation 'com.mysql:mysql-connector-j'
 	// https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
 	implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.2.1'
+	// https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime
+	// Java EE와 CORBA Module이 제거 된 이유로 로그인 API JWT 관련 오류 해결에 필요
+//	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.3'
+	// https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'

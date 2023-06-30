@@ -17,6 +17,10 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
+    /**
+     * 로컬 혹은 인수 값 넘겨서 다른 redis 연결
+     * @return
+     */
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);

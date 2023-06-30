@@ -8,5 +8,5 @@ import lombok.Getter;
 public class PersonalAuthenticationVerificationDto extends PersonalAuthenticationRequestDto {
     @Min(10000)
     @Max(99999)
-    private int code;
+    private int code;   // 10000~99999
 }
