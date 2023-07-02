@@ -2,6 +2,8 @@ package com.bsideTinkerbell.wavingBe.controller;
 
 import com.bsideTinkerbell.wavingBe.domain.dto.*;
 import com.bsideTinkerbell.wavingBe.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,12 +55,6 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<ResponseDto> createUser(@RequestBody @Valid UserDto request) {
         ResponseDto responseDto = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody UserLoginRequestDto request) {
-        ResponseDto responseDto = userService.loginUser(request);
         return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
     }
 }

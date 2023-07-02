@@ -1,6 +1,5 @@
 package com.bsideTinkerbell.wavingBe.security;
 
-import com.bsideTinkerbell.wavingBe.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7);  // 위 startswith 길이가 7
+        jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
 
         // 사용자 이메일이 존재하는데 사용자가 인증되지 않았을때

@@ -1,31 +1,27 @@
 package com.bsideTinkerbell.wavingBe.service;
 
-import com.bsideTinkerbell.wavingBe.domain.dto.*;
+import com.bsideTinkerbell.wavingBe.domain.dto.PersonalAuthenticationRequestDto;
+import com.bsideTinkerbell.wavingBe.domain.dto.PersonalAuthenticationVerificationDto;
+import com.bsideTinkerbell.wavingBe.domain.dto.ResponseDto;
+import com.bsideTinkerbell.wavingBe.domain.dto.UserDto;
 import com.bsideTinkerbell.wavingBe.domain.entity.LoginEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
 import com.bsideTinkerbell.wavingBe.repository.LoginRepository;
 import com.bsideTinkerbell.wavingBe.repository.PersonalAuthenticationRepository;
 import com.bsideTinkerbell.wavingBe.repository.UserRepository;
-import com.bsideTinkerbell.wavingBe.security.JwtService;
 import com.bsideTinkerbell.wavingBe.util.EndpointNaver;
 import com.google.gson.Gson;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.utils.Base64;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
@@ -46,7 +42,6 @@ public class UserService {
     private final PersonalAuthenticationRepository personalAuthenticationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
 
     private String makeSignature(String method, String timestamp, String accessKey, String secretKey, String url) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";					// one space
@@ -91,41 +86,6 @@ public class UserService {
 
         return new String(hashedPassword);
     }
-
-    /**
-     *
-     * @param username 사용자 아이디 (이메일)
-     * @param password 암호화 되지 않은 비밀번호
-     * @return 사용자
-     */
-    private UserEntity authenticate(String username, String password) {
-        UserEntity user = userRepository.findByUsername(username).orElse(null);
-        if (user == null)
-            return null;
-        LoginEntity login = loginRepository.findById(user.getUserId()).orElse(null);
-        if (login != null && passwordEncoder.matches(password, login.getSalt())) {
-            return user;
-        }
-        return null;
-    }
-
-//    /**
-//     *
-//     * @param user 사용자(회원) 객체
-//     * @return token: 로그인 인증을 위한 JWT
-//     */
-//    private String generateToken(UserEntity user) {
-//        String secretKey = "waving";
-//        // 1시간 유요시간 설정
-//        long expirationTime = 3600000;
-//
-//        return Jwts.builder()
-//                .setSubject(user.getUsername())
-//                .setIssuedAt(new Date())
-//                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-//                .signWith(SignatureAlgorithm.HS512, secretKey)
-//                .compact();
-//    }
 
     /**
      * nCloud SENS 통해 휴대폰 인증번호 전송
@@ -240,10 +200,9 @@ public class UserService {
     }
 
     /**
-     *
+     * TODO: 회원가입 후 accessToken을 반환할지 말지에 대한 여부
      * @param userDto 사용자 정보
      * @return 요청 응답
-     * @throws Exception 예외처리
      */
     @Transactional
     public ResponseDto createUser(UserDto userDto) {
@@ -279,36 +238,6 @@ public class UserService {
             result.put("message", ex);
             responseDto.setResult(result);
         }
-
-        return responseDto;
-    }
-
-    public ResponseDto loginUser(UserLoginRequestDto userLoginRequestDto) {
-        ResponseDto responseDto = new ResponseDto();
-        Map<String, Object> result = new HashMap<>();
-
-        String username = userLoginRequestDto.getUsername();
-        String password = userLoginRequestDto.getPassword();
-
-        // 아이디(이메일), 비번 둘중 하나라도 없으면 에러 반환
-        if (username == null || password == null) {
-            responseDto.setCode(400);
-            result.put("message", "username and password are required");
-            return responseDto;
-        }
-
-        // 사용자 인증
-        UserEntity user = authenticate(username, password);
-        if (user != null) {
-            String token = jwtService.generateToken(user);
-            responseDto.setCode(200);
-            result.put("token", token);
-        }
-        else {
-            responseDto.setCode(401);
-            result.put("message", "invalid username or password");
-        }
-        responseDto.setResult(result);
 
         return responseDto;
     }
