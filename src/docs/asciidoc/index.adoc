@@ -1,0 +1,20 @@
+= 웨이빙 API 문서
+:doctype: book
+:icons: font
+// 문서에 표기되는 코드들의 하이라이팅을 highlightjs를 사용
+:source-highlighter: highlightjs
+// toc (Table Of Contents)를 문서의 좌측에 두기
+:toc: left
+:toclevels: 2
+// 링크 옵션
+:sectlinks:
+
+[[API-List]]
+== APIs
+
+// Friend(지인) API
+=== Friend(지인) API
+* link:friend.html[지인 관련 CRUD API, window=_blank]
+
+//에러코드 API
+include::errorCode.adoc[]
