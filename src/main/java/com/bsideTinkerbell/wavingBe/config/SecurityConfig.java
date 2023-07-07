@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private static final String[] AUTH_WHITE_LIST = {"/", "/v1/users/**", "/v1/terms/**"};
+    private static final String[] AUTH_WHITE_LIST = {"/", "/v1/users/**", "/v1/terms/**", "/v1/auth/login/**"};
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
