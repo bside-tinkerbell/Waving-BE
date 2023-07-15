@@ -1,9 +1,6 @@
 package com.bsideTinkerbell.wavingBe.service;
 
-import com.bsideTinkerbell.wavingBe.domain.dto.PersonalAuthenticationRequestDto;
-import com.bsideTinkerbell.wavingBe.domain.dto.PersonalAuthenticationVerificationDto;
-import com.bsideTinkerbell.wavingBe.domain.dto.ResponseDto;
-import com.bsideTinkerbell.wavingBe.domain.dto.UserDto;
+import com.bsideTinkerbell.wavingBe.domain.dto.*;
 import com.bsideTinkerbell.wavingBe.domain.entity.LoginEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
@@ -118,8 +115,8 @@ public class UserService {
 //        messagesMap.put("content", content);  // 개별 메시지 내용 SMS: 최대 80 byte, LMS, MMS: 최대 2000byte
         messagesList.add(messagesMap);
         requestBodyMap.put("messages", messagesList);
-//            requestBodyMap.put("files", "");  // MMS에서만 사용가능
-//            requestBodyMap.put("reserveTime", "");    // 메시지 발송 예약 일시 (yyyy-MM-dd HH:mm)
+//            requestBodyMap.put("files", "");              // MMS 에서만 사용가능
+//            requestBodyMap.put("reserveTime", "");        // 메시지 발송 예약 일시 (yyyy-MM-dd HH:mm)
 //            requestBodyMap.put("reserveTimeZone", "");    // 예약 일시 타임존 (기본: Asia/Seoul)
 //            requestBodyMap.put("scheduleCode", "");       // 등록하려는 스케줄 코드
         String requestBodyString = new Gson().toJsonTree(requestBodyMap).getAsJsonObject().toString();
@@ -133,7 +130,8 @@ public class UserService {
         httpPost.setEntity(new StringEntity(requestBodyString));
 
         ResponseDto responseDto = new ResponseDto();
-        Map<String, Object> result = new HashMap<>();
+        ResponseResultDto result = new ResponseResultDto();
+//        Map<String, Object> result = new HashMap<>();
 
         try(CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(httpPost, response -> {
@@ -145,9 +143,11 @@ public class UserService {
                             , TimeUnit.MINUTES
                     );
                     responseDto.setCode(200);
-                    result.put("message", "success");
+                    result.setMessage("success");
+//                    responseDto.setResult(result);
                     responseDto.setResult(result);
                 }
+
                 System.out.println(response.getCode() + " " + response.getReasonPhrase());
                 final HttpEntity entity = response.getEntity();
                 String responseBodyString = EntityUtils.toString(entity);
@@ -160,7 +160,7 @@ public class UserService {
             System.out.println("error occurred: " + ex);
 
             responseDto.setCode(400);
-            result.put("message", "error occurred");
+            result.setMessage("error occurred");
             responseDto.setResult(result);
         }
 
@@ -169,7 +169,8 @@ public class UserService {
 
     public ResponseDto confirmAuthenticationCode(PersonalAuthenticationVerificationDto personalAuthVerificationDto) {
         ResponseDto responseDto = new ResponseDto();
-        Map<String, Object> result = new HashMap<>();
+        ResponseResultDto result = new ResponseResultDto();
+
 
         try {
             String cellphone = personalAuthVerificationDto.getCellphone();
@@ -177,22 +178,22 @@ public class UserService {
 
             if (stringCode == null) {
                 responseDto.setCode(404);
-                result.put("message", "verification code expired");
+                result.setMessage("verification code expired");
             }
             else {
                 final int code = Integer.parseInt(stringCode);
                 if (code == personalAuthVerificationDto.getCode()) {
                     redisTemplate.opsForValue().getAndDelete(cellphone);
                     responseDto.setCode(200);
-                    result.put("message", "success");
+                    result.setMessage("success");
                 } else {
                     responseDto.setCode(404);
-                    result.put("message", "invalid verification code");
+                    result.setMessage("invalid verification code");
                 }
             }
         } catch (Exception ex) {
             responseDto.setCode(400);
-            result.put("message", ex);
+            result.setMessage(ex.toString());
         }
         responseDto.setResult(result);
 
@@ -207,7 +208,7 @@ public class UserService {
     @Transactional
     public ResponseDto createUser(UserDto userDto) {
         ResponseDto responseDto = new ResponseDto();
-        Map<String, Object> result = new HashMap<>();
+        ResponseResultDto result = new ResponseResultDto();
         try {
             UserEntity userEntity = userDto.toUserEntity();
             String password = userDto.getPassword();
@@ -231,11 +232,11 @@ public class UserService {
             this.loginRepository.save(loginEntity);
 
             responseDto.setCode(200);
-            result.put("message", "success");
+            result.setMessage("success");
             responseDto.setResult(result);
         } catch (Exception ex) {
             responseDto.setCode(400);
-            result.put("message", ex);
+            result.setMessage(ex.toString());
             responseDto.setResult(result);
         }
 

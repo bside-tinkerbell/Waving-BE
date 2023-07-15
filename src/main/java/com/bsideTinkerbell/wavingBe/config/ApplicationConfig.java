@@ -15,36 +15,36 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class ApplicationConfig {
-    private final UserRepository userRepository;
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> (UserDetails) userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-
-        return authProvider;
-    }
-
-    /**
-     * 스프링 시큐리티의 인증을 담당할 빈(Bean) 생성
-     * @param config 인증 설정
-     * @return 인증 담당자
-     * @throws Exception 예외 처리
-     */
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
+//    private final UserRepository userRepository;
+//
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return username -> (UserDetails) userRepository.findByUsername(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+//    }
+//
+//    @Bean
+//    public AuthenticationProvider authenticationProvider() {
+//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+//        authProvider.setUserDetailsService(userDetailsService());
+//        authProvider.setPasswordEncoder(passwordEncoder());
+//
+//        return authProvider;
+//    }
+//
+//    /**
+//     * 스프링 시큐리티의 인증을 담당할 빈(Bean) 생성
+//     * @param config 인증 설정
+//     * @return 인증 담당자
+//     * @throws Exception 예외 처리
+//     */
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+//        return config.getAuthenticationManager();
+//    }
+//
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
