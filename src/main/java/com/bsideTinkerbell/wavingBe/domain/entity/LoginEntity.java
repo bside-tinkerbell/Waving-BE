@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(schema = "authentication", name = "logins")
+@Table(catalog = "authentication", name = "login")
 public class LoginEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -27,7 +27,7 @@ public class LoginEntity {
     @Column(name = "password")
     private String password;
     @LastModifiedDate
-    @Column(name = "update_date", nullable = true, columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = true, columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updateDate;
 
     @Builder

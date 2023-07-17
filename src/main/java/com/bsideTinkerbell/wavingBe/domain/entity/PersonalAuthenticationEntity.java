@@ -10,11 +10,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(schema = "user", name = "self_authentications")
+@Table(catalog = "user", name = "self_authentication")
 public class PersonalAuthenticationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

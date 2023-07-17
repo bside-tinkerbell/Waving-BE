@@ -22,9 +22,15 @@ public class GreetingController {
         return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
     }
 
-    @GetMapping("/main/{categoryName}")
-    public ResponseEntity<ResponseDto> getGreetingsByCategory(@PathVariable("categoryName") String categoryName) {
-        ResponseDto responseDto = greetingService.getGreetingsByCategoryName(categoryName);
+    @GetMapping("/main/{categoryId}")
+    public ResponseEntity<ResponseDto> getGreetingsByCategory(@PathVariable("categoryId") Long categoryId) {
+        ResponseDto responseDto = greetingService.getGreetingsByGreetingCategoryId(categoryId);
+        return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
+    }
+
+    @GetMapping("/main/greeting-categories")
+    public ResponseEntity<ResponseDto> getGreetingCategory() {
+        ResponseDto responseDto = greetingService.getGreetingCategory();
         return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
     }
 }

@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface GreetingRepository extends JpaRepository<GreetingEntity, Long> {
     Optional<GreetingEntity> findFirstByOrderByGreeting();
-    List<GreetingEntity> findByCategory(String categoryName);
+    List<GreetingEntity> findByGreetingCategoryId(Long id);
 }

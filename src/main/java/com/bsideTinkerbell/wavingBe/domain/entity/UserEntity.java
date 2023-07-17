@@ -31,22 +31,19 @@ import java.util.Collection;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users", schema = "user")
+@Table(catalog = "user", schema = "user")
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "user_id", columnDefinition = "INT UNSIGNED")
+    @Column(name = "user_id", columnDefinition = "int unsigned")
     private Long userId;
     @Column(name = "username", nullable = false, length = 50, unique = true)
     private String username;
     @Column(name = "login_type", nullable = false)
     private int loginType;
     @CreatedDate
-    @Column(name = "join_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime joinDate;
-    @LastModifiedDate
-    @Column(name = "update_date", nullable = true, columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
-    private LocalDateTime updateDate;
+    @Column(name = "joined_at", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime joinedAt;
 
     @Builder
     public UserEntity(Long userId, String username, int loginType) {

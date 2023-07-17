@@ -11,16 +11,14 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(catalog = "greeting", name = "greeting")
-public class GreetingEntity {
+@Table(catalog = "greeting", name = "greeting_category")
+public class GreetingCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "greeting_id")
-    private Long greetingId;
     @Column(name = "greeting_category_id")
     private Long greetingCategoryId;
-    @Column(name = "greeting")
-    private String greeting;
+    @Column(name = "category")
+    private String category;
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
