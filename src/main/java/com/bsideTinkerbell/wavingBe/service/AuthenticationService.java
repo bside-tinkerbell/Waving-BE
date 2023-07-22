@@ -76,6 +76,7 @@ public class AuthenticationService {
             String accessToken = jwtService.generateToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
             AuthenticationResponseDto authenticationResponseDto = new AuthenticationResponseDto();
+            authenticationResponseDto.setId(user.getUserId());
             authenticationResponseDto.setAccessToken(accessToken);
             authenticationResponseDto.setRefreshToken(refreshToken);
             result.setAuthenticationResponseDto(authenticationResponseDto);
