@@ -14,6 +14,7 @@ import java.util.List;
 public class ResponseResultDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("greeting_category_list")
     private List<GreetingCategoryDto> greetingCategoryDtoList;
@@ -26,4 +27,25 @@ public class ResponseResultDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("token")
     private AuthenticationResponseDto authenticationResponseDto;
+
+    // 지인
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("profile_list")
+    private List<FriendProfileResponseDto> profileListResponseDto;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("favorite_profile_list")
+    private List<FriendProfileResponseDto> favoriteProfileList;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("profile_cnt")
+    private Long profileCnt;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("favorite_cnt")
+    private Long favoriteCnt;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("profile")
+    private FriendProfileResponseDto profile;
 }
