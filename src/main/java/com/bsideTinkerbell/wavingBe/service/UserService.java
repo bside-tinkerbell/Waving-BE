@@ -223,12 +223,12 @@ public class UserService {
             // 조회 한 회원 아이디 기준으로 본인인증, 로그인 정보 저장
             PersonalAuthenticationEntity personalAuthenticationEntity = userDto.toSelfAuthenticationEntity(
                     userOptionalEntity.getUserId());
+            this.personalAuthenticationRepository.save(personalAuthenticationEntity);
             LoginEntity loginEntity = userDto.toLoginEntity(
                     userOptionalEntity.getUserId()
                     , passwordEncoder.encode(password)
                     , encryptPasswordWithSHA512(password)
             );
-            this.personalAuthenticationRepository.save(personalAuthenticationEntity);
             this.loginRepository.save(loginEntity);
 
             responseDto.setCode(200);

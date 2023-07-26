@@ -34,7 +34,8 @@ import java.util.Collection;
 @Table(catalog = "user", name = "user")
 public class UserEntity implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", columnDefinition = "int unsigned")
     private Long userId;
     @Column(name = "username", nullable = false, length = 50, unique = true)

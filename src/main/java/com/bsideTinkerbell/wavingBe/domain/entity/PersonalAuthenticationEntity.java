@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -18,14 +19,16 @@ import java.time.LocalDateTime;
 @Table(catalog = "user", name = "self_authentication")
 public class PersonalAuthenticationEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    //    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long selfAuthenticationId;
     private Long userId;
     private int gatherAgree;
     private String firstName;
     private String lastName;
-    private String birthday;
-    private int sex;
+    private LocalDate birthday;
+    @Column(name = "sex", nullable = true)
+    private Integer sex;
     private String cellphone;
     @LastModifiedDate
     @Column(name = "auth_date", nullable = false, updatable = true, columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
@@ -38,8 +41,8 @@ public class PersonalAuthenticationEntity {
             , int gatherAgree
             , String firstName
             , String lastName
-            , String birthday
-            , int sex
+            , LocalDate birthday
+            , Integer sex
             , String cellphone
     ) {
         this.selfAuthenticationId = selfAuthenticationId;
