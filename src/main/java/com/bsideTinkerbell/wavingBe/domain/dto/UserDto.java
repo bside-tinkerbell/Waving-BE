@@ -5,6 +5,7 @@ import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 //import javax.crypto.SecretKeyFactory;
 //import javax.crypto.spec.PBEKeySpec;
@@ -30,10 +31,13 @@ public class UserDto {
     @Min(0)
     @Max(1)
     private int loginType;
+//    @NotBlank
+//    private String firstName;
+//    @NotBlank
+//    private String lastName;
     @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
+    @Length(min=2, max=8)
+    private String name;
     @NotNull
     private LocalDate birthday;
     @Min(0)
@@ -63,8 +67,10 @@ public class UserDto {
         return PersonalAuthenticationEntity.builder()
                 .userId(userId)
                 .gatherAgree(this.gatherAgree)
-                .firstName(this.firstName)
-                .lastName(this.lastName)
+//                .firstName(this.firstName)
+//                .lastName(this.lastName)
+                .firstName(this.name.substring(1))
+                .lastName(this.name.substring(0, 1))
                 .birthday(this.birthday)
 //                .sex(this.sex)
                 .cellphone(this.cellphone)
