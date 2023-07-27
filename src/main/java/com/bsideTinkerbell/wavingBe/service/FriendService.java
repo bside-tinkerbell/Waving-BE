@@ -4,7 +4,6 @@ import com.bsideTinkerbell.wavingBe.domain.dto.*;
 import com.bsideTinkerbell.wavingBe.domain.entity.ContactEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.FriendProfileEntity;
 import com.bsideTinkerbell.wavingBe.repository.ContactRepository;
-import com.bsideTinkerbell.wavingBe.repository.FriendProfileHistoryRepository;
 import com.bsideTinkerbell.wavingBe.repository.FriendProfileRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +19,7 @@ public class FriendService {
 
 		private final ContactRepository contactRepository;
 		private final FriendProfileRepository profileRepository;
-		private final FriendProfileHistoryRepository  historyRepository;
 
-		private final FileService fileService;
 
 		// 명명 규칙 find(조회), save(등록), modify(변경), remove(삭제)
 
