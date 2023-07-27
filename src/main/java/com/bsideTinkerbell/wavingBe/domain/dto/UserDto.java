@@ -3,11 +3,9 @@ package com.bsideTinkerbell.wavingBe.domain.dto;
 import com.bsideTinkerbell.wavingBe.domain.entity.LoginEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 //import javax.crypto.SecretKeyFactory;
 //import javax.crypto.spec.PBEKeySpec;
@@ -16,6 +14,7 @@ import lombok.*;
 import java.security.NoSuchAlgorithmException;
 //import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.time.LocalDate;
 //import java.security.spec.KeySpec;
 
 @Getter
@@ -32,16 +31,20 @@ public class UserDto {
     @Min(0)
     @Max(1)
     private int loginType;
+//    @NotBlank
+//    private String firstName;
+//    @NotBlank
+//    private String lastName;
     @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
-    @NotBlank
-    private String birthday;
+    @Length(min=2, max=8)
+    private String name;
+    @NotNull
+    private LocalDate birthday;
     @Min(0)
     @Max(1)
     private int sex;
     @NotBlank
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{4}")
     private String cellphone;
 
     public UserEntity toUserEntity() {
@@ -64,10 +67,12 @@ public class UserDto {
         return PersonalAuthenticationEntity.builder()
                 .userId(userId)
                 .gatherAgree(this.gatherAgree)
-                .firstName(this.firstName)
-                .lastName(this.lastName)
+//                .firstName(this.firstName)
+//                .lastName(this.lastName)
+                .firstName(this.name.substring(1))
+                .lastName(this.name.substring(0, 1))
                 .birthday(this.birthday)
-                .sex(this.sex)
+//                .sex(this.sex)
                 .cellphone(this.cellphone)
                 .build();
     }

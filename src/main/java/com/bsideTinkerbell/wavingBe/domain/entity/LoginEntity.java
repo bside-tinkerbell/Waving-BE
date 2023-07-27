@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @Table(catalog = "authentication", name = "login")
 public class LoginEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    //    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "login_id")
     private Long loginId;
     @Column(name = "user_id")
