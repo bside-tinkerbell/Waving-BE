@@ -9,10 +9,12 @@ import com.bsideTinkerbell.wavingBe.domain.entity.GreetingEntity;
 import com.bsideTinkerbell.wavingBe.repository.GreetingCategoryRepository;
 import com.bsideTinkerbell.wavingBe.repository.GreetingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +22,27 @@ public class GreetingService {
     private final GreetingCategoryRepository greetingCategoryRepository;
     private final GreetingRepository greetingRepository;
 
+    private long getRowCount() {
+        return greetingRepository.count();
+    }
+
     private GreetingEntity findGreeting() {
         return greetingRepository.findFirstByOrderByGreeting().orElseThrow();
+    }
+
+
+    private GreetingEntity findRandomGreeting() {
+        long rowCount = getRowCount();
+        if (rowCount < 1L)
+            return null;
+
+        int min = 0;
+        int max = (int) rowCount;
+
+        Random random = new Random();
+        int offset = random.nextInt(max - min + 1) + min;
+
+        return greetingRepository.findWithOffset(offset);
     }
 
     private List<GreetingEntity> findGreetingsByGreetingCategoryId(Long id) {
@@ -32,13 +53,23 @@ public class GreetingService {
         return greetingCategoryRepository.findAll();
     }
 
+    @Cacheable(cacheNames = "greetingMain")
     public ResponseDto getGreeting() {
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
+        int code = 200;
 
-        GreetingDto greetingDto = GreetingDto.builder().greetingEntity(findGreeting()).build();
-        result.setGreetingDto(greetingDto);
-        responseDto.setCode(200);
+        GreetingEntity randomGreeting = findRandomGreeting();
+        if (randomGreeting != null) {
+            GreetingDto greetingDto = GreetingDto.builder().greetingEntity(randomGreeting).build();
+            result.setGreetingDto(greetingDto);
+        }
+        else {
+            code = 404;
+            result.setMessage("OOPS! There are no greetings..");
+        }
+
+        responseDto.setCode(code);
         responseDto.setResult(result);
 
         return responseDto;

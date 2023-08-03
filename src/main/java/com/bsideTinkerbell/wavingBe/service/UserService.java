@@ -73,11 +73,11 @@ public class UserService {
      * @return SHA512 암호화 된 비밀번호
      * @throws NoSuchAlgorithmException 알고리즘 예외처리
      */
-    private String encryptPasswordWithSHA512(String password) throws NoSuchAlgorithmException {
+    private String encryptPasswordWithSHA256(String password) throws NoSuchAlgorithmException {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
-        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(salt);
         byte[] hashedPassword = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
@@ -227,7 +227,7 @@ public class UserService {
             LoginEntity loginEntity = userDto.toLoginEntity(
                     userOptionalEntity.getUserId()
                     , passwordEncoder.encode(password)
-                    , encryptPasswordWithSHA512(password)
+                    , encryptPasswordWithSHA256(password)
             );
             this.loginRepository.save(loginEntity);
 
