@@ -55,11 +55,11 @@ public class UserDto {
                 .build();
     }
 
-    public LoginEntity toLoginEntity(Long userId, String salt, String sha512Password) {
+    public LoginEntity toLoginEntity(Long userId, String salt, String sha256Password) {
         return LoginEntity.builder()
                 .userId(userId)
                 .salt(salt)
-                .password(sha512Password)
+                .password(sha256Password)
                 .build();
     }
 

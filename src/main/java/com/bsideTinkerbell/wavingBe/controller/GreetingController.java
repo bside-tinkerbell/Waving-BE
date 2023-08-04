@@ -3,6 +3,7 @@ package com.bsideTinkerbell.wavingBe.controller;
 import com.bsideTinkerbell.wavingBe.domain.dto.ResponseDto;
 import com.bsideTinkerbell.wavingBe.service.GreetingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class GreetingController {
     private final GreetingService greetingService;
 
     @GetMapping("/main")
-    public ResponseEntity<ResponseDto> getGreetings() {
+    public ResponseEntity<ResponseDto> getGreeting() {
         ResponseDto responseDto = greetingService.getGreeting();
         return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
     }
