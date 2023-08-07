@@ -26,11 +26,6 @@ public class GreetingService {
         return greetingRepository.count();
     }
 
-    private GreetingEntity findGreeting() {
-        return greetingRepository.findFirstByOrderByGreeting().orElseThrow();
-    }
-
-
     private GreetingEntity findRandomGreeting() {
         long rowCount = getRowCount();
         if (rowCount < 1L)
@@ -57,19 +52,17 @@ public class GreetingService {
     public ResponseDto getGreeting() {
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
-        int code = 200;
 
         GreetingEntity randomGreeting = findRandomGreeting();
         if (randomGreeting != null) {
-            GreetingDto greetingDto = GreetingDto.builder().greetingEntity(randomGreeting).build();
-            result.setGreetingDto(greetingDto);
+            result.setGreetingCategoryId(randomGreeting.getGreetingCategoryId());
+            result.setGreeting(randomGreeting.getGreeting());
         }
         else {
-            code = 404;
+            responseDto.setCode(404);
             result.setMessage("OOPS! There are no greetings..");
         }
 
-        responseDto.setCode(code);
         responseDto.setResult(result);
 
         return responseDto;

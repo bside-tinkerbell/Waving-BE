@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ResponseDto {
-    private int code;
+    private int code = 200;
     private ResponseResultDto result;
 }
 

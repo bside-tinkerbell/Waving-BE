@@ -24,3 +24,13 @@ CREATE TABLE `user`.`self_authentication` (
     , UNIQUE INDEX unique_user_id (user_id)
 ) ENGINE = InnoDB
 ;
+
+CREATE TABLE `user`.favorite_greeting (
+    favorite_greeting_id int unsigned NOT NULL AUTO_INCREMENT
+    , user_id int unsigned NOT NULL
+    , greeting_id varchar(128) NOT NULL
+    , created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , PRIMARY KEY (favorite_greeting_id)
+    , UNIQUE INDEX unique_favorite_greeting (user_id, greeting_id)
+) ENGINE = InnoDB
+;

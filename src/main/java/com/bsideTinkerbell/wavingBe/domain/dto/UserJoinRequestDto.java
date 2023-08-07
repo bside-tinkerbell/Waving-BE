@@ -11,9 +11,7 @@ import org.hibernate.validator.constraints.Length;
 //import javax.crypto.spec.PBEKeySpec;
 //import java.nio.charset.StandardCharsets;
 //import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 //import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 //import java.security.spec.KeySpec;
 
@@ -21,12 +19,13 @@ import java.time.LocalDate;
 @Setter
 @ToString
 @NoArgsConstructor
-public class UserDto {
+public class UserJoinRequestDto {
     private Long userId;
     private int gatherAgree;
     @Email
     private String username;
     @NotBlank
+    @Length(min = 8, max = 20)
     private String password;
     @Min(0)
     @Max(1)
@@ -46,6 +45,8 @@ public class UserDto {
     @NotBlank
     @Pattern(regexp = "\\d{3}-\\d{4}-\\d{4}")
     private String cellphone;
+
+
 
     public UserEntity toUserEntity() {
         return UserEntity.builder()

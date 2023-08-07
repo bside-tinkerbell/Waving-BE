@@ -15,16 +15,30 @@ public class ResponseResultDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
 
+    // 회원
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("user_info")
+    private UserInfoResponseDto userInfoResponseDto;
+
+    // 인사말
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("greeting_category_list")
     private List<GreetingCategoryDto> greetingCategoryDtoList;
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+//    @JsonProperty("greeting")
+//    private GreetingDto greetingDto;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("greeting_category_id")
+    private Long greetingCategoryId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("greeting")
-    private GreetingDto greetingDto;
+    private String greeting;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("greeting_list")
     private List<GreetingDto> greetingDtoList;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+
+    // 인증
     @JsonProperty("token")
     private AuthenticationResponseDto authenticationResponseDto;
 

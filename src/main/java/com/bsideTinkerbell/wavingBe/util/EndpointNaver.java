@@ -1,8 +1,11 @@
 package com.bsideTinkerbell.wavingBe.util;
 
+import lombok.Getter;
+
 /**
- * Naver API 서비스 관련 엔드포인트 유틸
+ * Naver API 서비스 관련 엔드 포인트 유틸
  */
+@Getter
 public enum EndpointNaver {
     SENS_SEND_SMS("/sms/v2"),
     SENS_SEND_PUSH("/push/v2"),
@@ -14,9 +17,5 @@ public enum EndpointNaver {
 
     EndpointNaver(String url) {
         this.url = url;
-    }
-
-    public String getUrl() {
-        return this.url;
     }
 }

@@ -1,14 +1,6 @@
 package com.bsideTinkerbell.wavingBe.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
@@ -31,7 +23,11 @@ import java.util.Collection;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(catalog = "user", name = "user")
+@Table(catalog = "user", name = "user", indexes = {@Index(
+        name = "unique_username"
+        , columnList = "username"
+        , unique = true
+)})
 public class UserEntity implements UserDetails {
     @Id
 //    @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -43,7 +39,9 @@ public class UserEntity implements UserDetails {
     @Column(name = "login_type", nullable = false)
     private int loginType;
     @CreatedDate
-    @Column(name = "joined_at", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "joined_at", nullable = false, updatable = false
+            , columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    )
     private LocalDateTime joinedAt;
 
     @Builder
