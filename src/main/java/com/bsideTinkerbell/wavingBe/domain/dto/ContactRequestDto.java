@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ContactRequestDto {
 
@@ -21,7 +22,8 @@ public class ContactRequestDto {
 		private Long userId;                                    // 회원 id
 		@Min(0)
 		@Max(1)
-		private int linkType;                                   // 연동 유형 (0:기기, 1:카카오)
+		@Builder.Default
+		private int linkType = 0;                                   // 연동 유형 (0:기기, 1:카카오)
 
 		private List<FriendProfileRequestDto> profileList = new ArrayList<>();   // 프로필 DTO list
 
