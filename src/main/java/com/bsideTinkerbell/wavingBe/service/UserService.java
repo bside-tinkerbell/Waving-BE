@@ -4,6 +4,7 @@ import com.bsideTinkerbell.wavingBe.domain.dto.*;
 import com.bsideTinkerbell.wavingBe.domain.entity.LoginEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
 import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
+import com.bsideTinkerbell.wavingBe.repository.FavoriteGreetingRepository;
 import com.bsideTinkerbell.wavingBe.repository.LoginRepository;
 import com.bsideTinkerbell.wavingBe.repository.PersonalAuthenticationRepository;
 import com.bsideTinkerbell.wavingBe.repository.UserRepository;
@@ -11,6 +12,7 @@ import com.bsideTinkerbell.wavingBe.util.EndpointNaver;
 import com.google.gson.Gson;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -35,22 +37,23 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FavoriteGreetingRepository favoriteGreetingRepository;
     private final LoginRepository loginRepository;
     private final PersonalAuthenticationRepository personalAuthenticationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
 
-    private String makeSignature(String method, String timestamp, String accessKey, String secretKey, String url) throws NoSuchAlgorithmException, InvalidKeyException {
+    private String makeSignature(
+            String method
+            , String timestamp
+            , String accessKey
+            , String secretKey
+            , String url
+    ) throws NoSuchAlgorithmException, InvalidKeyException {
         String space = " ";					// one space
         String newLine = "\n";				// new line
-        String message = method +
-                space +
-                url +
-                newLine +
-                timestamp +
-                newLine +
-                accessKey;
-//        System.out.println(message);
+        String message = method + space + url + newLine + timestamp + newLine + accessKey;
+
         SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(signingKey);
@@ -82,6 +85,23 @@ public class UserService {
         byte[] hashedPassword = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
         return new String(hashedPassword);
+    }
+
+    private UserEntity getUserInfo(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
+    /**
+     * 마이페이지 회원정보 본인인증에서 가져오기
+     * @param id
+     * @return 본인인증에 있는 회원 정보
+     */
+    private PersonalAuthenticationEntity getPersonalAuthInfo(Long id) {
+        return personalAuthenticationRepository.findByUserId(id);
+    }
+
+    private void saveFavoriteGreeting(Long userId, UserFavoriteGreetingRequestDto request) {
+        favoriteGreetingRepository.save(request.toEntity(userId));
     }
 
     /**
@@ -206,7 +226,7 @@ public class UserService {
      * @return 요청 응답
      */
     @Transactional
-    public ResponseDto createUser(UserDto userDto) {
+    public ResponseDto createUser(UserJoinRequestDto userDto) {
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
         try {
@@ -232,6 +252,52 @@ public class UserService {
             this.loginRepository.save(loginEntity);
 
             responseDto.setCode(200);
+            result.setMessage("success");
+            responseDto.setResult(result);
+        } catch (Exception ex) {
+            responseDto.setCode(400);
+            result.setMessage(ex.toString());
+            responseDto.setResult(result);
+        }
+
+        return responseDto;
+    }
+
+    public ResponseDto getUser(Long userId) {
+        ResponseDto responseDto = new ResponseDto();
+        ResponseResultDto result = new ResponseResultDto();
+
+        try {
+            UserEntity userEntity = getUserInfo(userId);
+            PersonalAuthenticationEntity personalAuthenticationEntity = getPersonalAuthInfo(userId);
+            UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.builder()
+                    .userEntity(userEntity)
+                    .personalAuthenticationEntity(personalAuthenticationEntity)
+                    .build();
+            result.setUserInfoResponseDto(userInfoResponseDto);
+            responseDto.setResult(result);
+        } catch (Exception ex) {
+            responseDto.setCode(400);
+            result.setMessage(ex.toString());
+            responseDto.setResult(result);
+        }
+
+        return responseDto;
+    }
+
+    public ResponseDto getFavoriteGreetings(Long userId) {
+        ResponseDto responseDto = new ResponseDto();
+        ResponseResultDto result = new ResponseResultDto();
+
+        return responseDto;
+    }
+
+    public ResponseDto setFavoriteGreeting(Long userId, UserFavoriteGreetingRequestDto request) {
+        ResponseDto responseDto = new ResponseDto();
+        ResponseResultDto result = new ResponseResultDto();
+
+        try {
+            this.saveFavoriteGreeting(userId, request);
             result.setMessage("success");
             responseDto.setResult(result);
         } catch (Exception ex) {
