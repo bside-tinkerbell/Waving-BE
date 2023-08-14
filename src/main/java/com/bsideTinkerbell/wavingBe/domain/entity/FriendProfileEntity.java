@@ -1,12 +1,9 @@
 package com.bsideTinkerbell.wavingBe.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,9 +15,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@DynamicInsert
+@AllArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Where(clause = "deleted_at is null")
 @Table(catalog = "friend", name = "friend_profile")
 public class FriendProfileEntity {
 		// 연락처 프로필 table
@@ -35,10 +33,10 @@ public class FriendProfileEntity {
 		private String name;                                    // 지인 이름
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		private LocalDate birthday;                             // 지인 생일
-		@ColumnDefault("4")
-		private int contactCycle = 4;                               // 지인 연락 주기
+		private int contactCycle;                               // 지인 연락 주기 default=4
 		@Column(nullable = false)
-		private String phoneNumber;                             // 지인 연락처
+		@Pattern(regexp = "^0\\d{1,2}-\\d{3,4}-\\d{4}$")
+		private String cellphone;                               // 지인 연락처 XXX-XXXX-XXXX
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		private LocalDate recentContactDate;                    // 최근연락일(마지막연락일)
 		@CreatedDate
@@ -47,19 +45,18 @@ public class FriendProfileEntity {
 		@LastModifiedDate
 		@Column(columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
 		private LocalDateTime updatedAt;                         // 수정일
-
 		private LocalDateTime deletedAt = null;                  // 삭제일
 
 
 		@Builder
-		public FriendProfileEntity(Long friendProfileId, Long contactId, int isFavorite, String name, LocalDate birthday, int contactCycle, String phoneNumber, LocalDate recentContactDate) {
+		public FriendProfileEntity(Long friendProfileId, Long contactId, int isFavorite, String name, LocalDate birthday, int contactCycle, String cellphone, LocalDate recentContactDate) {
 				this.friendProfileId = friendProfileId;
 				this.contactId = contactId;
 				this.isFavorite = isFavorite;
 				this.name = name;
 				this.birthday = birthday;
 				this.contactCycle = contactCycle;
-				this.phoneNumber = phoneNumber;
+				this.cellphone = cellphone;
 				this.recentContactDate = recentContactDate;
 		}
 
@@ -69,3 +66,4 @@ public class FriendProfileEntity {
 
 
 }
+

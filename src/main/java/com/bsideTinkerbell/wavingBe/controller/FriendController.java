@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/friends")
 public class FriendController {
 
-		// 명명규칙, list(조회), detail(상세), save(등록,수정,삭제), add(등록), modify(수정), remove(삭제)
-
+		// 명명규칙, list(조회), detail(상세), save(등록,수정,삭제), modify(수정), delete(삭제)
 		private final FriendService friendService;
 
 		// 지인 리스트 view

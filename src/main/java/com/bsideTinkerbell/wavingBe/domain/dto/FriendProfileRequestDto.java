@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FriendProfileRequestDto {
 
@@ -23,10 +24,12 @@ public class FriendProfileRequestDto {
 		private int isFavorite;                // 즐겨찾기
 		private String name;                   // 지인 이름
 		private LocalDate birthday;            // 지인 생일
-		private int contactCycle;              // 지인 연락 주기
-		private String phoneNumber;            // 지인 연락처
+		@Builder.Default
+		private int contactCycle = 4;          // 지인 연락 주기
+		private String cellphone;              // 지인 연락처 xxxxxxxxxxx/xxx-xxxx-xxxx 형식의 11자리 숫자 문자열
 		private LocalDate recentContactDate;   // 최근연락일(마지막연락일)
 
+		@Builder
 		public FriendProfileEntity toProfileEntity() {
 				return FriendProfileEntity.builder()
 								.friendProfileId(friendProfileId)
@@ -35,20 +38,20 @@ public class FriendProfileRequestDto {
 								.name(name)
 								.birthday(birthday)
 								.contactCycle(contactCycle)
-								.phoneNumber(phoneNumber)
+								.cellphone(cellphone)
 								.recentContactDate(recentContactDate)
 								.build();
 		}
 
 		@Builder
-		public FriendProfileRequestDto(Long friendProfileId, Long contactId, int isFavorite, String name, LocalDate birthday, int contactCycle, String phoneNumber, LocalDate recentContactDate) {
+		public FriendProfileRequestDto(Long friendProfileId, Long contactId, int isFavorite, String name, LocalDate birthday, int contactCycle, String cellphone, LocalDate recentContactDate) {
 				this.friendProfileId = friendProfileId;
 				this.contactId = contactId;
 				this.isFavorite = isFavorite;
 				this.name = name;
 				this.birthday = birthday;
 				this.contactCycle = contactCycle;
-				this.phoneNumber = phoneNumber;
+				this.cellphone = cellphone;
 				this.recentContactDate = recentContactDate;
 		}
 }

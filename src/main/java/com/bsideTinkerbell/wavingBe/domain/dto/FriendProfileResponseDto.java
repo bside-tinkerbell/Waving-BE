@@ -24,11 +24,11 @@ public class FriendProfileResponseDto {
 		@Max(1)
 		private int isFavorite;                // 즐겨찾기
 		private String name;                   // 지인 이름
-		@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yy.MM.dd")
+		@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
 		private LocalDate birthday;            // 지인 생일
 		private int contactCycle;              // 지인 연락 주기
-		private String phoneNumber;            // 지인 연락처
-		@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yy.MM.dd")
+		private String cellphone;              // 지인 연락처
+		@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
 		private LocalDate recentContactDate;   // 최근연락일(마지막연락일)
 
 		// Entity -> DTO
@@ -40,19 +40,8 @@ public class FriendProfileResponseDto {
 				this.name = profileEntity.getName();
 				this.birthday = profileEntity.getBirthday();
 				this.contactCycle = profileEntity.getContactCycle();
-				this.phoneNumber = profileEntity.getPhoneNumber();
+				this.cellphone = profileEntity.getCellphone();
 				this.recentContactDate = profileEntity.getRecentContactDate();
 		}
 
-		@Builder
-		public FriendProfileResponseDto(FriendProfileRequestDto friendProfileRequestDto) {
-				this.friendProfileId = friendProfileRequestDto.getFriendProfileId();
-				this.contactId = friendProfileRequestDto.getContactId();
-				this.isFavorite = friendProfileRequestDto.getIsFavorite();
-				this.name = friendProfileRequestDto.getName();
-				this.birthday = friendProfileRequestDto.getBirthday();
-				this.contactCycle = friendProfileRequestDto.getContactCycle();
-				this.phoneNumber = friendProfileRequestDto.getPhoneNumber();
-				this.recentContactDate = friendProfileRequestDto.getRecentContactDate();
-		}
 }
