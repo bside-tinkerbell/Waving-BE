@@ -26,7 +26,7 @@ public class FriendProfileEntity {
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long friendProfileId;                           // 연락처 프로필 고유id
-		@Column(nullable = false)
+		@Column(nullable = false, insertable = true, updatable = false)
 		private Long contactId;                                 // 연락처 id (friend 테이블)
 		private int isFavorite;                                 // 즐겨찾기
 		@Column(nullable = false)

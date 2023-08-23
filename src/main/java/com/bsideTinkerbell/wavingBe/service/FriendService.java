@@ -49,8 +49,6 @@ public class FriendService {
 						Long favoriteCnt = profileRepository.countAllByContactIdAndIsFavorite(contactEntity.get().getContactId(), 1);
 						Long profileCnt = profileRepository.countAllByContactIdAndIsFavorite(contactEntity.get().getContactId(), 0);
 
-						responseDto.setCode(200);
-
 						result.setMessage("success");
 						result.setProfileListResponseDto(friendProfileDtoList);
 						result.setFavoriteProfileList(favoriteProfileDtoList);
@@ -60,6 +58,8 @@ public class FriendService {
 
 				} else {
 						responseDto.setCode(400);
+						result.setMessage("user_id의 지인리스트가 없습니다.");
+						responseDto.setResult(result);
 				}
 
 				// todo 페이징 -> 후순위
@@ -117,7 +117,6 @@ public class FriendService {
 								List<FriendProfileEntity> profileEntityList = profileRepository.findAllByContactId(contactRequestDto.getContactId());
 								List<FriendProfileResponseDto> profileResponseList = profileEntityList.stream().map(FriendProfileResponseDto::new).toList();
 
-								responseDto.setCode(200);
 								result.setMessage("success");
 								result.setProfileListResponseDto(profileResponseList);
 								responseDto.setResult(result);
@@ -146,23 +145,30 @@ public class FriendService {
 
 						Optional<FriendProfileEntity> profileEntityOptional = profileRepository.findOneByFriendProfileId(profileId);
 						if(profileEntityOptional.isPresent()) {
-								FriendProfileEntity profileEntity = profileRequestDto.toProfileEntity();
+								FriendProfileEntity existingProfileEntity = profileEntityOptional.get();
+								FriendProfileEntity updatedProfileEntity = profileRequestDto.toProfileEntity();
 
-								Optional.of(profileEntity);
+								// 기존에 DB에 저장된 friendProfileId와 contactId를 새로운 엔티티에 추가
+								updatedProfileEntity.setFriendProfileId(profileId);
+								updatedProfileEntity.setContactId(existingProfileEntity.getContactId());
 
-								profileRepository.save(profileEntity);
+								profileRepository.save(updatedProfileEntity);
 
-								FriendProfileResponseDto profileDto = new FriendProfileResponseDto(profileEntity);
+								FriendProfileResponseDto profileDto = new FriendProfileResponseDto(updatedProfileEntity);
 
-								responseDto.setCode(200);
 								result.setMessage("success");
 								result.setProfile(profileDto);
+								responseDto.setResult(result);
+						} else {
+								responseDto.setCode(400);
+								result.setMessage("프로필이 존재하지 않습니다.");
 								responseDto.setResult(result);
 						}
 
 				}catch (Exception e) {
 						responseDto.setCode(400);
 						result.setMessage(String.valueOf(e));
+						responseDto.setResult(result);
 				}
 
 				return responseDto;
@@ -178,15 +184,22 @@ public class FriendService {
 				ResponseDto responseDto = new ResponseDto();
 				ResponseResultDto result = new ResponseResultDto();
 
-				FriendProfileEntity profileEntity = profileRepository.findOneByFriendProfileId(profileId).orElseThrow(() -> {
-						return new IllegalArgumentException("프로필이 존재하지 않습니다.");
-				});
-				FriendProfileResponseDto profileDto = new FriendProfileResponseDto(profileEntity);
+				Optional<FriendProfileEntity> profileEntityOptional = profileRepository.findOneByFriendProfileId(profileId);
 
-				responseDto.setCode(200);
-				result.setMessage("success");
-				result.setProfile(profileDto);
-				responseDto.setResult(result);
+				if(profileEntityOptional.isPresent()) {
+
+						FriendProfileEntity profileEntity = profileEntityOptional.get();
+						FriendProfileResponseDto profileDto = new FriendProfileResponseDto(profileEntity);
+
+						result.setMessage("success");
+						result.setProfile(profileDto);
+						responseDto.setResult(result);
+
+				} else {
+						responseDto.setCode(400);
+						result.setMessage("프로필이 존재하지 않습니다.");
+						responseDto.setResult(result);
+				}
 
 				return responseDto;
 		}
@@ -200,15 +213,21 @@ public class FriendService {
 				ResponseDto responseDto = new ResponseDto();
 				ResponseResultDto result = new ResponseResultDto();
 
-				FriendProfileEntity profileEntity = profileRepository.findOneByFriendProfileId(profileId).orElseThrow(() -> {
-						return new IllegalArgumentException("프로필이 존재하지 않습니다.");
-				});
+				Optional<FriendProfileEntity> profileEntityOptional = profileRepository.findOneByFriendProfileId(profileId);
 
-				profileEntity.delete();
+				if(profileEntityOptional.isPresent()) {
 
-				responseDto.setCode(200);
-				result.setMessage("success");
-				responseDto.setResult(result);
+						FriendProfileEntity profileEntity = profileEntityOptional.get();
+						profileEntity.delete();
+
+						result.setMessage("success");
+						responseDto.setResult(result);
+
+				} else {
+						responseDto.setCode(400);
+						result.setMessage("프로필이 존재하지 않습니다.");
+						responseDto.setResult(result);
+				}
 
 				return responseDto;
 		}
