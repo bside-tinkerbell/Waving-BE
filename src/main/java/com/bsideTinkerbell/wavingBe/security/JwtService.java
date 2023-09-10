@@ -25,9 +25,17 @@ public class JwtService {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
     @Value("${application.security.jwt.secret-key.access-token.expiration}")
-    private long accessExpiration;      // jwtExpiration 대신 accessExpiration 이름으로 사용
+    private long accessExpiration;
     @Value("${application.security.jwt.secret-key.refresh-token.expiration}")
     private long refreshExpiration;
+
+    public long getAccessExpiration() {
+        return this.accessExpiration;
+    }
+
+    public long getRefreshExpiration() {
+        return this.refreshExpiration;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

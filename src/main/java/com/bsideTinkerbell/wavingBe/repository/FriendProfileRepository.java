@@ -19,4 +19,5 @@ public interface FriendProfileRepository extends JpaRepository<FriendProfileEnti
 		// 지인 프로필 view
 		Optional<FriendProfileEntity> findOneByFriendProfileId(Long profileId);
 
+//		void deleteByContactId(Long contactId);
 }

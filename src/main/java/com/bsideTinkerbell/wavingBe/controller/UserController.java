@@ -83,4 +83,10 @@ public class UserController {
         ResponseDto responseDto = userService.setFavoriteGreeting(userId, request);
         return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
     }
+
+//    @DeleteMapping("/{userId}")
+//    public ResponseEntity<ResponseDto> deleteUser(@PathVariable Long userId) {
+//        ResponseDto responseDto = userService.deleteUser(userId);
+//        return ResponseEntity.status(HttpStatus.valueOf(responseDto.getCode())).body(responseDto);
+//    }
 }

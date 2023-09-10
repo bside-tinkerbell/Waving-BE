@@ -1,18 +1,12 @@
 package com.bsideTinkerbell.wavingBe.service;
 
 import com.bsideTinkerbell.wavingBe.domain.dto.*;
-import com.bsideTinkerbell.wavingBe.domain.entity.LoginEntity;
-import com.bsideTinkerbell.wavingBe.domain.entity.PersonalAuthenticationEntity;
-import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
-import com.bsideTinkerbell.wavingBe.repository.FavoriteGreetingRepository;
-import com.bsideTinkerbell.wavingBe.repository.LoginRepository;
-import com.bsideTinkerbell.wavingBe.repository.PersonalAuthenticationRepository;
-import com.bsideTinkerbell.wavingBe.repository.UserRepository;
+import com.bsideTinkerbell.wavingBe.domain.entity.*;
+import com.bsideTinkerbell.wavingBe.repository.*;
 import com.bsideTinkerbell.wavingBe.util.EndpointNaver;
 import com.google.gson.Gson;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -42,6 +36,8 @@ public class UserService {
     private final PersonalAuthenticationRepository personalAuthenticationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final ContactRepository contactRepository;
+    private final FriendProfileRepository friendProfileRepository;
 
     private String makeSignature(
             String method
@@ -131,7 +127,8 @@ public class UserService {
 //            requestBodyMap.put("subject", "");    // LMS, MMS에서만 사용 가능, 최대 40byte
         String content = "인증번호: " + verificationCode;
         requestBodyMap.put("content", content);
-        messagesMap.put("to", personalAuthRequestDto.getCellphone());
+        String cellphoneFormatted = personalAuthRequestDto.getCellphone().replace("-", "");
+        messagesMap.put("to", cellphoneFormatted);
 //        messagesMap.put("content", content);  // 개별 메시지 내용 SMS: 최대 80 byte, LMS, MMS: 최대 2000byte
         messagesList.add(messagesMap);
         requestBodyMap.put("messages", messagesList);
@@ -151,20 +148,17 @@ public class UserService {
 
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
-//        Map<String, Object> result = new HashMap<>();
 
         try(CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(httpPost, response -> {
                 if (response.getCode() == 202) {
                     redisTemplate.opsForValue().set(
-                            personalAuthRequestDto.getCellphone()
+                            cellphoneFormatted
                             , Integer.toString(verificationCode)
                             , 5
                             , TimeUnit.MINUTES
                     );
-                    responseDto.setCode(200);
                     result.setMessage("success");
-//                    responseDto.setResult(result);
                     responseDto.setResult(result);
                 }
 
@@ -308,4 +302,35 @@ public class UserService {
 
         return responseDto;
     }
+
+    /**
+     * 1. JWT 토큰 삭제 2. 사용자 아이디 관련된 데이터 삭제
+     * @param userId 사용자 공유 번호
+     * @return responseDto
+     */
+
+//    @Transactional
+//    public ResponseDto deleteUser(Long userId) {
+//        ResponseDto responseDto = new ResponseDto();
+//        ResponseResultDto result = new ResponseResultDto();
+//
+//        try {
+//            ContactEntity contact = contactRepository.findByUserId(userId).orElseThrow();
+//            friendProfileRepository.deleteByContactId(contact.getContactId());
+//            contactRepository.deleteByUserId(userId);
+//            favoriteGreetingRepository.deleteByUserId(userId);
+//            loginRepository.deleteByUserId(userId);
+//            personalAuthenticationRepository.deleteByUserId(userId);
+//            userRepository.deleteById(userId);
+//
+//            result.setMessage("success");
+//            responseDto.setResult(result);
+//        } catch (Exception ex) {
+//            responseDto.setCode(400);
+//            result.setMessage(ex.toString());
+//            responseDto.setResult(result);
+//        }
+//
+//        return responseDto;
+//    }
 }

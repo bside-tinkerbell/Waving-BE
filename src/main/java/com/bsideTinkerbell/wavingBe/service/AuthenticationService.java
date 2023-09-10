@@ -9,14 +9,16 @@ import com.bsideTinkerbell.wavingBe.domain.entity.UserEntity;
 import com.bsideTinkerbell.wavingBe.repository.LoginRepository;
 import com.bsideTinkerbell.wavingBe.repository.UserRepository;
 import com.bsideTinkerbell.wavingBe.security.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class AuthenticationService {
 //    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      *
@@ -79,8 +82,9 @@ public class AuthenticationService {
             authenticationResponseDto.setId(user.getUserId());
             authenticationResponseDto.setAccessToken(accessToken);
             authenticationResponseDto.setRefreshToken(refreshToken);
+            // Redis 에 Refresh Token 저장
+            redisTemplate.opsForValue().set(username, refreshToken, Duration.ofMillis(jwtService.getRefreshExpiration()));
             result.setAuthenticationResponseDto(authenticationResponseDto);
-            responseDto.setCode(200);
         }
         else {
             responseDto.setCode(401);
@@ -92,21 +96,32 @@ public class AuthenticationService {
     }
 
     /**
+     *
+     * @param authHeader authentication header
+     * @return True/False
+     */
+    public boolean validateAuthHeader(String authHeader) {
+        return authHeader == null || !authHeader.startsWith("Bearer ");
+    }
+
+    /**
      * Access Token 갱신을 위한 Refresh Token 갱신
-     * @param request http 요청
+     * @param authHeader Authentication Header
      * @return http response
      */
-    public ResponseDto refreshToken(HttpServletRequest request) {
+    public ResponseDto refreshToken(String authHeader) {
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
 
         // refresh token 을 authorization header 에서 bearer 로 전달 받는다
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return null;
+        if (validateAuthHeader(authHeader)) {
+            responseDto.setCode(403);
+            result.setMessage("Invalid authentication header");
+            responseDto.setResult(result);
+            return responseDto;
         }
 
         refreshToken = authHeader.substring(7);
@@ -117,15 +132,42 @@ public class AuthenticationService {
             UserDetails userDetails = this.userRepository.findByUsername(userEmail).orElseThrow();
 
             if (jwtService.isTokenValid(refreshToken, userDetails)) {
-                String accessToken = jwtService.generateToken(userDetails);
+                String accessToken = jwtService.generateRefreshToken(userDetails);
                 AuthenticationResponseDto authenticationResponseDto = new AuthenticationResponseDto();
                 authenticationResponseDto.setAccessToken(accessToken);
                 authenticationResponseDto.setRefreshToken(refreshToken);
                 result.setAuthenticationResponseDto(authenticationResponseDto);
-                responseDto.setCode(200);
                 responseDto.setResult(result);
             }
         }
+        return responseDto;
+    }
+
+    public ResponseDto logout(String authHeader) {
+        ResponseDto responseDto = new ResponseDto();
+        ResponseResultDto result = new ResponseResultDto();
+        final String accessToken;
+        final String userEmail;
+
+        if (validateAuthHeader(authHeader)) {
+            responseDto.setCode(403);
+            result.setMessage("Invalid authentication header");
+            responseDto.setResult(result);
+            return responseDto;
+        }
+
+        accessToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(accessToken);
+
+        redisTemplate.delete(userEmail);
+        redisTemplate.opsForValue().set(
+                accessToken
+                , "logout"
+                , Duration.ofMillis(jwtService.getAccessExpiration())
+        );
+        result.setMessage("logout success");
+        responseDto.setResult(result);
+
         return responseDto;
     }
 }

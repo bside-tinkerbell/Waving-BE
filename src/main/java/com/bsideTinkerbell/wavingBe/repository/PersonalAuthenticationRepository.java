@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PersonalAuthenticationRepository extends JpaRepository<PersonalAuthenticationEntity, Long> {
     PersonalAuthenticationEntity findByUserId(Long id);
+//    void deleteByUserId(Long userId);
 }

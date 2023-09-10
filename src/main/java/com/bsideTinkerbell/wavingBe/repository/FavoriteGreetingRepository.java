@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FavoriteGreetingRepository extends JpaRepository<FavoriteGreetingEntity, Long> {
+//    void deleteByUserId(Long userId);
 }
