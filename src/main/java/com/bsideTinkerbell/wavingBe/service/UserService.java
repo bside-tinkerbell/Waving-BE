@@ -100,6 +100,10 @@ public class UserService {
         favoriteGreetingRepository.save(request.toEntity(userId));
     }
 
+    private String formatCellphone(String cellphone) {
+        return cellphone.replace("-", "");
+    }
+
     /**
      * nCloud SENS 통해 휴대폰 인증번호 전송
      * @param personalAuthRequestDto 본인인증 데이터 전송 객체
@@ -127,7 +131,7 @@ public class UserService {
 //            requestBodyMap.put("subject", "");    // LMS, MMS에서만 사용 가능, 최대 40byte
         String content = "인증번호: " + verificationCode;
         requestBodyMap.put("content", content);
-        String cellphoneFormatted = personalAuthRequestDto.getCellphone().replace("-", "");
+        String cellphoneFormatted = this.formatCellphone(personalAuthRequestDto.getCellphone());
         messagesMap.put("to", cellphoneFormatted);
 //        messagesMap.put("content", content);  // 개별 메시지 내용 SMS: 최대 80 byte, LMS, MMS: 최대 2000byte
         messagesList.add(messagesMap);
@@ -187,8 +191,8 @@ public class UserService {
 
 
         try {
-            String cellphone = personalAuthVerificationDto.getCellphone();
-            String stringCode = redisTemplate.opsForValue().get(cellphone);
+            final String cellphoneFormatted = this.formatCellphone(personalAuthVerificationDto.getCellphone());
+            final String stringCode = redisTemplate.opsForValue().get(cellphoneFormatted);
 
             if (stringCode == null) {
                 responseDto.setCode(404);
@@ -197,7 +201,7 @@ public class UserService {
             else {
                 final int code = Integer.parseInt(stringCode);
                 if (code == personalAuthVerificationDto.getCode()) {
-                    redisTemplate.opsForValue().getAndDelete(cellphone);
+                    redisTemplate.opsForValue().getAndDelete(cellphoneFormatted);
                     responseDto.setCode(200);
                     result.setMessage("success");
                 } else {
