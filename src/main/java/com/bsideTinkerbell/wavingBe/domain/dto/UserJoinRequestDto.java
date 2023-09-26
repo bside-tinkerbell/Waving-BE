@@ -21,6 +21,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UserJoinRequestDto {
     private Long userId;
+    @Min(0)
+    @Max(1)
     private int gatherAgree;
     @Email
     private String username;

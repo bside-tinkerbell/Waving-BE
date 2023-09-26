@@ -3,6 +3,7 @@ package com.bsideTinkerbell.wavingBe.service;
 import com.bsideTinkerbell.wavingBe.domain.dto.*;
 import com.bsideTinkerbell.wavingBe.domain.entity.*;
 import com.bsideTinkerbell.wavingBe.repository.*;
+import com.bsideTinkerbell.wavingBe.security.JwtService;
 import com.bsideTinkerbell.wavingBe.util.EndpointNaver;
 import com.google.gson.Gson;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +38,7 @@ public class UserService {
     private final PersonalAuthenticationRepository personalAuthenticationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final ContactRepository contactRepository;
     private final FriendProfileRepository friendProfileRepository;
 
@@ -219,7 +222,7 @@ public class UserService {
     }
 
     /**
-     * TODO: 회원가입 후 accessToken을 반환할지 말지에 대한 여부
+     * 회원 가입 후 userId, accessToken, refreshToken 을 반환
      * @param userDto 사용자 정보
      * @return 요청 응답
      */
@@ -228,29 +231,43 @@ public class UserService {
         ResponseDto responseDto = new ResponseDto();
         ResponseResultDto result = new ResponseResultDto();
         try {
-            UserEntity userEntity = userDto.toUserEntity();
-            String password = userDto.getPassword();
-            this.userRepository.save(userEntity);
+            // 회원 가입 전 아이디 조회, 존재 시 에러 메시지 반환
+            UserEntity userEntity = this.userRepository.findByUsername(userDto.getUsername()).orElse(null);
+            if (userEntity != null) {
+                responseDto.setCode(400);
+                result.setMessage("동일한 아이디가 존재 합니다");
+                responseDto.setResult(result);
 
-            // 회원 테이블 저장 후 회원 아이디 조회
-            UserEntity userOptionalEntity = this.userRepository.findByUsername(userDto.getUsername()).orElse(null);
-            if (userOptionalEntity == null) {
-                throw new Exception("아이디가 존재하지 않습니다");
+                return responseDto;
             }
 
+            String password = userDto.getPassword();
+            // 회원 테이블 저장 후 회원 아이디 조회
+            this.userRepository.save(userDto.toUserEntity());
+            userEntity = this.userRepository.findByUsername(userDto.getUsername()).orElseThrow();
+            Long userId = userEntity.getUserId();
+
             // 조회 한 회원 아이디 기준으로 본인인증, 로그인 정보 저장
-            PersonalAuthenticationEntity personalAuthenticationEntity = userDto.toSelfAuthenticationEntity(
-                    userOptionalEntity.getUserId());
+            PersonalAuthenticationEntity personalAuthenticationEntity = userDto.toSelfAuthenticationEntity(userId);
             this.personalAuthenticationRepository.save(personalAuthenticationEntity);
             LoginEntity loginEntity = userDto.toLoginEntity(
-                    userOptionalEntity.getUserId()
+                    userId
                     , passwordEncoder.encode(password)
                     , encryptPasswordWithSHA256(password)
             );
             this.loginRepository.save(loginEntity);
 
-            responseDto.setCode(200);
-            result.setMessage("success");
+            String accessToken = jwtService.generateToken(userEntity);
+            String refreshToken = jwtService.generateRefreshToken(userEntity);
+            redisTemplate.opsForValue().set(userEntity.getUsername(), refreshToken, Duration.ofMillis(jwtService.getRefreshExpiration()));
+
+            UserJoinResponseDto userJoinResponseDto = new UserJoinResponseDto();
+            userJoinResponseDto.setMessage("success");
+            userJoinResponseDto.setId(userId);
+            userJoinResponseDto.setAccessToken(accessToken);
+            userJoinResponseDto.setRefreshToken(refreshToken);
+
+            result.setUserJoinResponseDto(userJoinResponseDto);
             responseDto.setResult(result);
         } catch (Exception ex) {
             responseDto.setCode(400);

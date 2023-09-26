@@ -20,6 +20,10 @@ public class ResponseResultDto {
     @JsonProperty("user_info")
     private UserInfoResponseDto userInfoResponseDto;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("user_join_result")
+    private UserJoinResponseDto userJoinResponseDto;
+
     // 인사말
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("greeting_category_list")
