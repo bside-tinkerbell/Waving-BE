@@ -33,7 +33,8 @@ public class FriendProfileEntity {
 		private String name;                                    // 지인 이름
 		@DateTimeFormat(pattern = "yyyy-MM-dd")
 		private LocalDate birthday;                             // 지인 생일
-		private int contactCycle;                               // 지인 연락 주기 default=4
+		// int -> Integer (primitive type 에 null 할당 하는 에러 수정)
+		private Integer contactCycle;                               // 지인 연락 주기 default=4
 		@Column(nullable = false)
 		@Pattern(regexp = "^0\\d{1,2}-\\d{3,4}-\\d{4}$")
 		private String cellphone;                               // 지인 연락처 XXX-XXXX-XXXX

@@ -6,6 +6,7 @@ import com.bsideTinkerbell.wavingBe.repository.*;
 import com.bsideTinkerbell.wavingBe.security.JwtService;
 import com.bsideTinkerbell.wavingBe.util.EndpointNaver;
 import com.google.gson.Gson;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -330,28 +331,46 @@ public class UserService {
      * @return responseDto
      */
 
-//    @Transactional
-//    public ResponseDto deleteUser(Long userId) {
-//        ResponseDto responseDto = new ResponseDto();
-//        ResponseResultDto result = new ResponseResultDto();
-//
-//        try {
-//            ContactEntity contact = contactRepository.findByUserId(userId).orElseThrow();
-//            friendProfileRepository.deleteByContactId(contact.getContactId());
-//            contactRepository.deleteByUserId(userId);
-//            favoriteGreetingRepository.deleteByUserId(userId);
-//            loginRepository.deleteByUserId(userId);
-//            personalAuthenticationRepository.deleteByUserId(userId);
-//            userRepository.deleteById(userId);
-//
-//            result.setMessage("success");
-//            responseDto.setResult(result);
-//        } catch (Exception ex) {
-//            responseDto.setCode(400);
-//            result.setMessage(ex.toString());
-//            responseDto.setResult(result);
-//        }
-//
-//        return responseDto;
-//    }
+    @Transactional
+    public ResponseDto deleteUser(Long userId) {
+        ResponseDto responseDto = new ResponseDto();
+        ResponseResultDto result = new ResponseResultDto();
+
+        try {
+            userRepository.findByUserId(userId).ifPresentOrElse(
+                    user -> redisTemplate.delete(user.getUsername())
+                    , () -> {
+                        throw new EntityNotFoundException("user not found");
+                    }
+            );
+            contactRepository.findByUserId(userId).ifPresent(
+//                    contact -> friendProfileRepository.deleteByContactId(contact.getContactId())
+                      // 데이터 삭제 시 delete() 함수로 soft delete (삭제 날짜 마크) 처리 하는 것이 의도 인지 모르지만 일단 활용
+                      // 특이 사항: delete 날짜 업데이트 시 update 날짜도 delete날짜로 업데이트 되는거 같음
+                      contact -> {
+                          friendProfileRepository.findAllByContactId(contact.getContactId()).forEach(FriendProfileEntity::delete);
+                      }
+            );
+            contactRepository.deleteByUserId(userId);
+            favoriteGreetingRepository.deleteByUserId(userId);
+            loginRepository.deleteByUserId(userId);
+            personalAuthenticationRepository.deleteByUserId(userId);
+            userRepository.deleteById(userId);
+
+            result.setMessage("success");
+        } catch (EntityNotFoundException ex) {
+            responseDto.setCode(400);
+            result.setMessage(ex.getMessage());
+        }
+        catch (Exception ex) {
+            responseDto.setCode(400);
+            System.out.println(ex.getMessage());
+            result.setMessage("Oops, something went wrong..");
+        }
+        finally {
+            responseDto.setResult(result);
+        }
+
+        return responseDto;
+    }
 }
