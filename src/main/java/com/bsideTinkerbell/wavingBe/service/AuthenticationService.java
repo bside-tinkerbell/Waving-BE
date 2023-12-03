@@ -40,7 +40,7 @@ public class AuthenticationService {
         UserEntity user = userRepository.findByUsername(username).orElse(null);
         if (user == null)
             return null;
-        LoginEntity login = loginRepository.findById(user.getUserId()).orElse(null);
+        LoginEntity login = loginRepository.findByUserId(user.getUserId()).orElse(null);
         if (login != null && passwordEncoder.matches(password, login.getSalt())) {
             return user;
         }
